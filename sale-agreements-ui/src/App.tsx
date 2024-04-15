@@ -1,8 +1,15 @@
 import "./App.css";
-import { Button } from "antd";
+import HomePage from "./components/HomePage";
+import GlavniLayout from "./components/layout/GlavniLayout";
 
 function App() {
-  return <div className="App"></div>;
+  return (
+    <div className="App">
+      <GlavniLayout>
+        <HomePage />
+      </GlavniLayout>
+    </div>
+  );
 }
 
 export default App;
