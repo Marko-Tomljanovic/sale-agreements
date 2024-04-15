@@ -1,8 +1,11 @@
 import { EditOutlined } from "@ant-design/icons";
 import { Button, Table, Tooltip } from "antd";
 import useConstructStatusTag from "../custom-hooks/useConstructStatusTag";
+import { useState } from "react";
+import ModalChangeKupoprodajniUgovor from "../modals/ModalChangeKupoprodajniUgovor";
 
 export default function HomePage() {
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const { constructStatusTag } = useConstructStatusTag();
 
   const dataSource = [
@@ -61,13 +64,13 @@ export default function HomePage() {
       title: "Akcije",
       dataIndex: "akcije",
       key: "akcije",
-      render: (text: any, record: any) => {
+      render: () => {
         return (
           <Tooltip placement="top" title="Uredi rok isporuke i status">
             <Button
               type="link"
               icon={<EditOutlined />}
-              //   onClick={() =>{}
+              onClick={() => setIsModalOpen(true)}
             />
           </Tooltip>
         );
@@ -81,6 +84,10 @@ export default function HomePage() {
         columns={columns}
         pagination={false}
       ></Table>
+      <ModalChangeKupoprodajniUgovor
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+      />
     </>
   );
 }
