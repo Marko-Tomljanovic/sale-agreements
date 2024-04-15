@@ -1,21 +1,31 @@
 import { EditOutlined } from "@ant-design/icons";
 import { Button, Table, Tooltip } from "antd";
+import useConstructStatusTag from "../custom-hooks/useConstructStatusTag";
 
 export default function HomePage() {
+  const { constructStatusTag } = useConstructStatusTag();
+
   const dataSource = [
     {
       key: "1",
       ime: "Fili Filipović",
       brojUgovora: "10/33",
       rokIsporuke: "3.3.1022",
-      status: "Super",
+      status: 1,
     },
     {
       key: "1",
       ime: "Fili Filipović",
       brojUgovora: "10/33",
       rokIsporuke: "3.3.1022",
-      status: "Super",
+      status: 2,
+    },
+    {
+      key: "1",
+      ime: "Fili Filipović",
+      brojUgovora: "10/33",
+      rokIsporuke: "3.3.1022",
+      status: 3,
     },
   ];
 
@@ -39,6 +49,13 @@ export default function HomePage() {
       title: "Status",
       dataIndex: "status",
       key: "status",
+      render: (text: any) => {
+        return (
+          <span style={{ whiteSpace: "nowrap" }}>
+            {constructStatusTag(text)}
+          </span>
+        );
+      },
     },
     {
       title: "Akcije",
@@ -50,7 +67,7 @@ export default function HomePage() {
             <Button
               type="link"
               icon={<EditOutlined />}
-              //   onClick={() => handleObrisi(record.key)}
+              //   onClick={() =>{}
             />
           </Tooltip>
         );
