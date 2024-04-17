@@ -1,13 +1,14 @@
+import { BrowserRouter } from "react-router-dom";
 import "./App.css";
-import HomePage from "./components/HomePage";
+import routes from "./components/Route";
 import GlavniLayout from "./components/layout/GlavniLayout";
 
 function App() {
   return (
     <div className="App">
-      <GlavniLayout>
-        <HomePage />
-      </GlavniLayout>
+      <BrowserRouter>
+        <GlavniLayout>{routes}</GlavniLayout>
+      </BrowserRouter>
     </div>
   );
 }

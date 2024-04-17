@@ -13,7 +13,7 @@ import { constructStatusOptions } from "../utils/constructs";
 import { useEffect, useState } from "react";
 import { SelectedRow } from "../utils/types";
 
-export default function ModalChangeKupoprodajniUgovor({
+export default function ModalAddKupoprodajniUgovor({
   isModalOpen,
   setIsModalOpen,
   selectedRow,
@@ -52,7 +52,7 @@ export default function ModalChangeKupoprodajniUgovor({
 
   return (
     <Modal
-      title={`Uredi kupoprodajni ugovor - ${selectedRow.broj_ugovora}`}
+      title="Uredi kupoprodajni ugovor"
       open={isModalOpen}
       onCancel={handleCancel}
       footer={null}
