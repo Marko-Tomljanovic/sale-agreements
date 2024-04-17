@@ -1,7 +1,7 @@
 import { EditOutlined } from "@ant-design/icons";
-import { Button, Table, Tooltip } from "antd";
+import { Button, Spin, Table, Tooltip } from "antd";
 import useConstructStatusTag from "../custom-hooks/useConstructStatusTag";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ModalChangeKupoprodajniUgovor from "../modals/ModalChangeKupoprodajniUgovor";
 import { constructEditIconTooltip } from "../utils/constructs";
 import { SelectedRow } from "../utils/types";
@@ -14,35 +14,32 @@ export default function HomePage() {
   const [selectedRow, setSelectedRow] = useState<SelectedRow>(
     INIT_STATE_SELECTED_ROW
   );
+  const [dataSource, setDataSource] = useState<SelectedRow[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const navigate = useNavigate();
   const { constructStatusTag } = useConstructStatusTag();
 
-  const dataSource = [
-    {
-      id: "1",
-      kupac: "Filip Filipović",
-      broj_ugovora: "10/33",
-      datum_akontacije: "25.08.2024",
-      rok_isporuke: "25.08.2024",
-      status: 1,
-    },
-    {
-      id: "2",
-      kupac: "Marko Filipović",
-      broj_ugovora: "10/33",
-      datum_akontacije: "25.08.2024",
-      rok_isporuke: "25.08.2024",
-      status: 2,
-    },
-    {
-      id: "3",
-      kupac: "Janko Filipović",
-      broj_ugovora: "10/33",
-      datum_akontacije: "25.08.2024",
-      rok_isporuke: "25.08.2024",
-      status: 3,
-    },
-  ];
+  const fetchData = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch(
+        "http://localhost:5000/api/kupoprodajni-ugovori"
+      );
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const data = await response.json();
+      setDataSource(data.data);
+    } catch (error) {
+      console.log("error:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const columns = [
     {
@@ -99,25 +96,27 @@ export default function HomePage() {
   return (
     <>
       <FiltersListaKP />
-      <Table
-        dataSource={dataSource}
-        columns={columns}
-        rowKey="id"
-        onRow={(record, rowIndex) => {
-          return {
-            onClick: (event) => {
-              navigate(`/detalji/${record.id}`);
-            },
-            style: { cursor: "pointer" },
-          };
-        }}
-        pagination={false}
-      ></Table>
-      <ModalChangeKupoprodajniUgovor
-        isModalOpen={isModalOpen}
-        setIsModalOpen={setIsModalOpen}
-        selectedRow={selectedRow}
-      />
+      <Spin spinning={isLoading}>
+        <Table
+          dataSource={dataSource || []}
+          columns={columns}
+          rowKey="id"
+          onRow={(record, rowIndex) => {
+            return {
+              onClick: (event) => {
+                navigate(`/detalji/${record.id}`);
+              },
+              style: { cursor: "pointer" },
+            };
+          }}
+          pagination={false}
+        ></Table>
+        <ModalChangeKupoprodajniUgovor
+          isModalOpen={isModalOpen}
+          setIsModalOpen={setIsModalOpen}
+          selectedRow={selectedRow}
+        />
+      </Spin>
     </>
   );
 }
