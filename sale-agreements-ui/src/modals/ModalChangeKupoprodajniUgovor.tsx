@@ -12,24 +12,44 @@ import dayjs from "dayjs";
 import { constructStatusOptions } from "../utils/constructs";
 import { useEffect, useState } from "react";
 import { SelectedRow } from "../utils/types";
+import { axiosInstance } from "../services/axiosConfig";
 
 export default function ModalChangeKupoprodajniUgovor({
   isModalOpen,
   setIsModalOpen,
   selectedRow,
+  setDataSource,
 }: {
   isModalOpen: boolean;
   setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
   selectedRow: SelectedRow;
+  setDataSource: any;
 }) {
   const [form] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const handlePotvrdi = () => {
-    form.resetFields();
-    setIsModalOpen(false);
+  const handlePotvrdi = async (values: any) => {
+    values = {
+      ...values,
+      rok_isporuke: dayjs(values.rok_isporuke).format("YYYY-MM-DD"),
+    };
+    try {
+      setIsLoading(true);
+      const response = await axiosInstance.put(
+        `/kupoprodajni-ugovori/${selectedRow.id}`,
+        values
+      );
+      setDataSource(response.data.kupoprodajniUgovori);
+      form.resetFields();
+      setIsModalOpen(false);
+    } catch (error) {
+      console.log("error:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
+
   useEffect(() => {
     form.setFieldsValue({
       rok_isporuke: dayjs(selectedRow.rok_isporuke, "DD.MM.YYYY"),

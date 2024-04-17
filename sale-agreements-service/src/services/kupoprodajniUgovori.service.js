@@ -1,69 +1,50 @@
-// const db = require('./db.service');
-// const config = require('../configs/general.config');
+const dbConnect = require("./db.service");
+const KupoprodajniUgovor = require("../models/kupoprodajniUgovori.model");
 
 async function get() {
-  const data = [
-    {
-      id: "1",
-      kupac: "Filip Filipović",
-      broj_ugovora: "10/33",
-      datum_akontacije: "25.08.2024",
-      rok_isporuke: "25.08.2024",
-      status: 1,
-    },
-    {
-      id: "2",
-      kupac: "Marko Filipović",
-      broj_ugovora: "10/33",
-      datum_akontacije: "25.08.2024",
-      rok_isporuke: "25.08.2024",
-      status: 2,
-    },
-    {
-      id: "3",
-      kupac: "Janko Filipović",
-      broj_ugovora: "10/33",
-      datum_akontacije: "25.08.2024",
-      rok_isporuke: "25.08.2024",
-      status: 3,
-    },
-  ];
-
-  return { data };
-}
-async function create(kupoprodajniUgovori) {
-  const result = "";
-
-  let message = "Error in creating kupoprodajni ugovori";
-
-  if (result.affectedRows) {
-    message = "Kupoprodajni ugovori created successfully";
+  dbConnect();
+  try {
+    const kupoprodajniUgovori = await KupoprodajniUgovor.find({}).select(
+      "-updatedAt -createdAt -__v"
+    );
+    return kupoprodajniUgovori;
+  } catch (error) {
+    console.log("error:", error);
+    throw error;
   }
-
-  return { message };
+}
+async function create(newKP) {
+  dbConnect();
+  try {
+    const kupoprodajniUgovor = new KupoprodajniUgovor(newKP);
+    await kupoprodajniUgovor.save();
+    const response = await get();
+    return { kupoprodajniUgovori: response };
+  } catch (error) {
+    console.log("error:", error);
+    throw error;
+  }
 }
 
-async function update(id, kupoprodajniUgovori) {
-  const result = "";
-
-  let message = "Error in updating kupoprodajni ugovori";
-
-  if (result.affectedRows) {
-    message = "Kupoprodajni ugovori updated successfully";
+async function update(id, updatedData) {
+  dbConnect();
+  try {
+    await KupoprodajniUgovor.findByIdAndUpdate(id, {
+      rok_isporuke: updatedData.rok_isporuke,
+      status: updatedData.status,
+    });
+    const kupoprodajniUgovori = await get();
+    return {
+      kupoprodajniUgovori,
+    };
+  } catch (error) {
+    console.log("error:", error);
+    throw error;
   }
-
-  return { message };
 }
 
 async function remove(id) {
-  const result = "";
-
-  let message = "Error in deleting kupoprodajni ugovori";
-
-  if (result.affectedRows) {
-    message = "Kupoprodajni ugovori deleted successfully";
-  }
-
+  let message = "Function not implemented";
   return { message };
 }
 

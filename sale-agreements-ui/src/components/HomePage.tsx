@@ -9,6 +9,7 @@ import FiltersListaKP from "./filters/FiltersListaKP";
 import { useNavigate } from "react-router-dom";
 import { INIT_STATE_SELECTED_ROW } from "../utils/initialStates";
 import { axiosInstance } from "../services/axiosConfig";
+import dayjs from "dayjs";
 
 export default function HomePage() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -24,7 +25,7 @@ export default function HomePage() {
     try {
       setIsLoading(true);
       const { data } = await axiosInstance.get("/kupoprodajni-ugovori");
-      setDataSource(data.data);
+      setDataSource(data);
     } catch (error) {
       console.log("error:", error);
     } finally {
@@ -51,6 +52,9 @@ export default function HomePage() {
       title: "Rok isporuke",
       dataIndex: "rok_isporuke",
       key: "rok_isporuke",
+      render: (text: string) => {
+        return <span>{dayjs(text).format("DD.MM.YYYY")}</span>;
+      },
     },
     {
       title: "Status",
@@ -79,7 +83,10 @@ export default function HomePage() {
               disabled={record.status === 3}
               onClick={(event) => {
                 event.stopPropagation(); // Zaustavi pokretanje detalja
-                setSelectedRow(record);
+                setSelectedRow({
+                  ...record,
+                  rok_isporuke: dayjs(record.rok_isporuke).format("DD.MM.YYYY"),
+                });
                 setIsModalOpen(true);
               }}
             />
@@ -110,6 +117,7 @@ export default function HomePage() {
           isModalOpen={isModalOpen}
           setIsModalOpen={setIsModalOpen}
           selectedRow={selectedRow}
+          setDataSource={setDataSource}
         />
       </Spin>
     </>

@@ -52,7 +52,7 @@ export default function ModalAddKupoprodajniUgovor({
 
   return (
     <Modal
-      title="Uredi kupoprodajni ugovor"
+      title="Dodaj kupoprodajni ugovor"
       open={isModalOpen}
       onCancel={handleCancel}
       footer={null}
