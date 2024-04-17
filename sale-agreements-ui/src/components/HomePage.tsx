@@ -8,6 +8,7 @@ import { SelectedRow } from "../utils/types";
 import FiltersListaKP from "./filters/FiltersListaKP";
 import { useNavigate } from "react-router-dom";
 import { INIT_STATE_SELECTED_ROW } from "../utils/initialStates";
+import { axiosInstance } from "../services/axiosConfig";
 
 export default function HomePage() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -22,13 +23,7 @@ export default function HomePage() {
   const fetchData = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(
-        "http://localhost:5000/api/kupoprodajni-ugovori"
-      );
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-      const data = await response.json();
+      const { data } = await axiosInstance.get("/kupoprodajni-ugovori");
       setDataSource(data.data);
     } catch (error) {
       console.log("error:", error);
