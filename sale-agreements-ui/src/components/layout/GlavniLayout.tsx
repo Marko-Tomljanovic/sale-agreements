@@ -2,6 +2,7 @@ import { useState, ReactNode } from "react";
 import { Layout, theme } from "antd";
 import MasterHeader from "../navigation/headers/MasterHeader";
 import SiderMenu from "../navigation/SiderMenu";
+import GlobalProvider from "../../context/GlobalProvider";
 
 const { Content } = Layout;
 
@@ -13,21 +14,23 @@ const GlavniLayout = ({ children }: { children: ReactNode }) => {
 
   return (
     <Layout style={{ height: "100vh" }}>
-      <SiderMenu collapsed={collapsed} />
-      <Layout>
-        <MasterHeader collapsed={collapsed} setCollapsed={setCollapsed} />
-        <Content
-          style={{
-            margin: "24px 16px",
-            padding: 24,
-            minHeight: 280,
-            background: colorBgContainer,
-            borderRadius: borderRadiusLG,
-          }}
-        >
-          <main>{children}</main>
-        </Content>
-      </Layout>
+      <GlobalProvider>
+        <SiderMenu collapsed={collapsed} />
+        <Layout>
+          <MasterHeader collapsed={collapsed} setCollapsed={setCollapsed} />
+          <Content
+            style={{
+              margin: "24px 16px",
+              padding: 24,
+              minHeight: 280,
+              background: colorBgContainer,
+              borderRadius: borderRadiusLG,
+            }}
+          >
+            <main>{children}</main>
+          </Content>
+        </Layout>
+      </GlobalProvider>
     </Layout>
   );
 };

@@ -17,8 +17,6 @@ export const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
   async function (config) {
     // Do something before request is sent
-    console.log(process.env.MARKO);
-
     return config;
   },
   function (error) {
@@ -34,8 +32,9 @@ axiosInstance.interceptors.response.use(
     return response;
   },
   function (error) {
-    // Any status codes that falls outside the range of 2xx cause this function to trigger
-    // Do something with response error
+    if (!error.response) {
+      console.log("Network error");
+    }
     return Promise.reject(error);
   }
 );

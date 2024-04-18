@@ -1,34 +1,46 @@
-import { Divider } from "antd";
+import { Divider, Spin } from "antd";
 import InfoKP from "./InfoKP";
 import TableArtikli from "./TableAkrikli";
+import { useEffect, useState } from "react";
+import { fetchDetaljiKP } from "../../api/SaleAgreementsApi";
+import { useParams } from "react-router-dom";
+import { Artikl } from "../../utils/types";
 
 export default function DetaljiKP() {
-  const dataArtikli = [
-    {
-      id: 1,
-      naziv: "Perilica posuđa ugradbena Electrolux EEA27200L",
-      dobavljac: "Sancta Domenica",
-      status: 1,
-    },
-    {
-      id: 2,
-      naziv: "Napa ugradbena Gorenje TH60E3X",
-      dobavljac: "Sancta Domenica",
-      status: 2,
-    },
-    {
-      id: 3,
-      naziv: "Ploča ugradbena kombinirana Gorenje GCE691BSC",
-      dobavljac: "Bijela tehnika",
-      status: 3,
-    },
-  ];
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [data, setData] = useState<{
+    artikli: Artikl[];
+    kupoprodajniUgovor: any[];
+  }>({
+    artikli: [],
+    kupoprodajniUgovor: [],
+  });
+  const params = useParams();
+  const id = params.id!;
+
+  const fetchDetaljiData = async () => {
+    try {
+      setIsLoading(true);
+      const data = await fetchDetaljiKP(id);
+      setData(data);
+    } catch (error) {
+      console.log("error:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDetaljiData();
+  }, []);
 
   return (
     <>
-      <InfoKP detalji={{}} />
-      <Divider />
-      <TableArtikli data={dataArtikli} />
+      <Spin spinning={isLoading}>
+        <InfoKP detalji={data.kupoprodajniUgovor} />
+        <Divider />
+        <TableArtikli data={data.artikli} />
+      </Spin>
     </>
   );
 }
