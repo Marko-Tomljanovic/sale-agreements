@@ -5,6 +5,9 @@ const kupoprodajniUgovoriController = require("../controllers/kupoprodajniUgovor
 /* GET kupoprodajni ugovori */
 router.get("/", kupoprodajniUgovoriController.get);
 
+/* GET one by id kupoprodajni ugovori */
+router.get("/:id", kupoprodajniUgovoriController.getById);
+
 /* POST kupoprodajni ugovori */
 router.post("/", kupoprodajniUgovoriController.create);
 

@@ -1,5 +1,6 @@
 const dbConnect = require("./db.service");
 const KupoprodajniUgovor = require("../models/kupoprodajniUgovori.model");
+const Artikl = require("../models//artikl.model");
 
 async function get() {
   dbConnect();
@@ -13,10 +14,31 @@ async function get() {
     throw error;
   }
 }
-async function create(newKP) {
+
+async function getById(id) {
   dbConnect();
   try {
-    const kupoprodajniUgovor = new KupoprodajniUgovor(newKP);
+    const kupoprodajniUgovor = await KupoprodajniUgovor.findById(id).select(
+      "-updatedAt -createdAt -__v"
+    );
+    const artikli = await Artikl.find({ kp_id: id }).select(
+      "-updatedAt -createdAt -__v -kp_id "
+    );
+    return { kupoprodajniUgovor, artikli };
+  } catch (error) {
+    console.log("error:", error);
+    throw error;
+  }
+}
+
+async function create(newKP) {
+  const validationKp = require("../helpers/validations/kupoprodajniUgovori.validations");
+  if (validationKp.create(newKP)) {
+    throw new Error("Invalid input data");
+  }
+  dbConnect();
+  try {
+    const kupoprodajniUgovor = new KupoprodajniUgovor({ ...newKP, status: 1 }); // postavljanje statusa na KREIRAN
     await kupoprodajniUgovor.save();
     const response = await get();
     return { kupoprodajniUgovori: response };
@@ -50,6 +72,7 @@ async function remove(id) {
 
 module.exports = {
   get,
+  getById,
   create,
   update,
   remove,
