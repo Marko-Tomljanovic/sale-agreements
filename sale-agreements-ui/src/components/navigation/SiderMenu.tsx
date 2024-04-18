@@ -1,5 +1,5 @@
-import { SnippetsOutlined } from "@ant-design/icons";
-import { Layout, Menu } from "antd";
+import { FormOutlined, SnippetsOutlined } from "@ant-design/icons";
+import { Layout, Menu, Space, Typography } from "antd";
 import { useNavigate } from "react-router-dom";
 
 const { Sider } = Layout;
@@ -11,9 +11,19 @@ const SiderMenu = ({ collapsed }: { collapsed: boolean }) => {
     navigate(`${route}`);
   };
 
+  const isTitle = !collapsed ? "Zadatak" : null;
+
   return (
     <Sider trigger={null} collapsible collapsed={collapsed} width={230}>
-      <div className="demo-logo-vertical" />
+      <Typography.Title
+        level={3}
+        style={{ textAlign: "center", color: "white" }}
+      >
+        <Space size={"middle"}>
+          <FormOutlined />
+          {isTitle}
+        </Space>
+      </Typography.Title>
       <Menu
         theme="dark"
         mode="inline"

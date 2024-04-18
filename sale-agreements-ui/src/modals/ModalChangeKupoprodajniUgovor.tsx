@@ -23,7 +23,7 @@ export default function ModalChangeKupoprodajniUgovor({
   isModalOpen: boolean;
   setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
   selectedRow: SelectedRow;
-  setDataSource: any;
+  setDataSource: React.Dispatch<React.SetStateAction<SelectedRow[]>>;
 }) {
   const [form] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();

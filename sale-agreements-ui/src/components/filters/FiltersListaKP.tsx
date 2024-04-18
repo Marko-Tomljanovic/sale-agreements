@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   Button,
   Col,
@@ -7,29 +6,57 @@ import {
   Row,
   Space,
   Switch,
+  Tooltip,
   Typography,
-  message,
 } from "antd";
 import Input from "antd/es/input/Input";
-import { CheckOutlined } from "@ant-design/icons";
+import {
+  CheckCircleTwoTone,
+  CheckOutlined,
+  QuestionCircleOutlined,
+} from "@ant-design/icons";
+import { SelectedRow } from "../../utils/types";
+import { fetchFilterKP } from "../../api/SaleAgreementsApi";
+import { useState } from "react";
 
-export default function FiltersListaKP() {
+export default function FiltersListaKP({
+  setData,
+  setIsLoading,
+}: {
+  setData: React.Dispatch<React.SetStateAction<SelectedRow[]>>;
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
+  const [isActive, setIsActive] = useState<boolean>(false);
   const [form] = Form.useForm();
-  const [messageApi, contextHolder] = message.useMessage();
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const handlePretrazi = () => {};
 
-  const onFinishFailed = (errorInfo: any) => {
-    const messageData = "Niste popunili sve podatke.";
-    messageApi.open({
-      type: "warning",
-      content: messageData,
-    });
+  const handlePretrazi = async (values: {
+    kupac: string;
+    aktivnost: boolean;
+  }) => {
+    const { kupac, aktivnost } = values;
+    try {
+      setIsLoading(true);
+      const response = await fetchFilterKP(kupac, aktivnost);
+      setData(response.data.kupoprodajniUgovori);
+      setIsActive(true);
+    } catch (error) {
+      console.log("error:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleReset = async () => {
-    setIsLoading(true);
+    if (!isActive) {
+      form.resetFields();
+      return;
+    }
     try {
+      setIsLoading(true);
+      const response = await fetchFilterKP("", "");
+      setData(response.data.kupoprodajniUgovori);
+      form.resetFields();
+      setIsActive(false);
     } catch (error) {
       console.log(error);
     } finally {
@@ -40,14 +67,13 @@ export default function FiltersListaKP() {
   return (
     <>
       <Typography.Title level={5} style={{ marginTop: 0 }}>
-        Pretraga
+        Pretraga {isActive && <CheckCircleTwoTone twoToneColor="#52c41a" />}
       </Typography.Title>
       <Form
         form={form}
         layout="vertical"
-        initialValues={{}}
+        initialValues={{ kupac: "", aktivnost: false }}
         onFinish={handlePretrazi}
-        onFinishFailed={onFinishFailed}
         autoComplete="off"
         style={{ maxWidth: "none" }}
       >
@@ -61,7 +87,17 @@ export default function FiltersListaKP() {
             </Form.Item>
           </Col>
           <Col>
-            <Form.Item label="Aktivnost" name="aktivnost">
+            <Form.Item
+              label={
+                <Space>
+                  Aktivnost
+                  <Tooltip title="Aktivni ugovori su oni koji su u statusu „KREIRANO“ ili „NARUČENO“, neaktivni ugovori su oni koji su u statusu „ISPORUČENO“.">
+                    <QuestionCircleOutlined />
+                  </Tooltip>
+                </Space>
+              }
+              name="aktivnost"
+            >
               <Switch checkedChildren={<CheckOutlined />} />
             </Form.Item>
           </Col>

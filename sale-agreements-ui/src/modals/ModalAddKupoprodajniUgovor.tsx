@@ -1,41 +1,40 @@
-import {
-  Button,
-  DatePicker,
-  Form,
-  Modal,
-  Select,
-  Space,
-  Spin,
-  message,
-} from "antd";
+import { Button, DatePicker, Form, Input, Modal, Spin, message } from "antd";
 import dayjs from "dayjs";
-import { constructStatusOptions } from "../utils/constructs";
-import { useEffect, useState } from "react";
-import { SelectedRow } from "../utils/types";
+import { useState } from "react";
+import { PostKP } from "../api/SaleAgreementsApi";
+import { useGlobal } from "../context/GlobalProvider";
 
 export default function ModalAddKupoprodajniUgovor({
   isModalOpen,
   setIsModalOpen,
-  selectedRow,
 }: {
   isModalOpen: boolean;
   setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  selectedRow: SelectedRow;
 }) {
   const [form] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const handlePotvrdi = () => {
-    form.resetFields();
-    setIsModalOpen(false);
+  const { setDataSource } = useGlobal();
+
+  const handlePotvrdi = async (values: any) => {
+    values = {
+      ...values,
+      datum_akontacije: dayjs(values.datum_akontacije).format("YYYY-MM-DD"),
+      rok_isporuke: dayjs(values.rok_isporuke).format("YYYY-MM-DD"),
+    };
+    try {
+      setIsLoading(true);
+      const response = await PostKP(values);
+      setDataSource(response.data.kupoprodajniUgovori);
+      form.resetFields();
+      setIsModalOpen(false);
+    } catch (error) {
+      console.log("error:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
-  useEffect(() => {
-    form.setFieldsValue({
-      rok_isporuke: dayjs(selectedRow.rok_isporuke, "DD.MM.YYYY"),
-      status: selectedRow.status,
-    });
-  }, [selectedRow]);
 
   const handleCancel = () => {
     form.resetFields();
@@ -52,10 +51,17 @@ export default function ModalAddKupoprodajniUgovor({
 
   return (
     <Modal
-      title="Dodaj kupoprodajni ugovor"
+      title="Novi kupoprodajni ugovor"
       open={isModalOpen}
       onCancel={handleCancel}
-      footer={null}
+      footer={
+        <>
+          <Button onClick={handleCancel}>Odustani</Button>
+          <Button type="primary" onClick={() => form.submit()}>
+            Potvrdi
+          </Button>
+        </>
+      }
     >
       {contextHolder}
       <Spin spinning={isLoading}>
@@ -63,8 +69,10 @@ export default function ModalAddKupoprodajniUgovor({
           form={form}
           layout="vertical"
           initialValues={{
-            rok_isporuke: dayjs(selectedRow.rok_isporuke, "DD.MM.YYYY"),
-            status: selectedRow.status,
+            kupac: "",
+            broj_ugovora: "",
+            datum_akontacije: "",
+            rok_isporuke: "",
           }}
           onFinish={handlePotvrdi}
           onFinishFailed={onFinishFailed}
@@ -72,13 +80,42 @@ export default function ModalAddKupoprodajniUgovor({
           style={{ maxWidth: "none" }}
         >
           <Form.Item
-            label="Rok isporuke"
-            name="rok_isporuke"
+            label="Ime kupca"
+            name="kupac"
+            rules={[
+              {
+                type: "string",
+                required: true,
+                message: "Molimo unesite ime kupca.",
+              },
+            ]}
+          >
+            <Input style={{ width: "100%" }} placeholder="Unesite ime kupca" />
+          </Form.Item>
+          <Form.Item
+            label="Broj ugovora"
+            name="broj_ugovora"
+            rules={[
+              {
+                type: "string",
+                required: true,
+                message: "Molimo unesite broj ugovora.",
+              },
+            ]}
+          >
+            <Input
+              style={{ width: "100%" }}
+              placeholder="Unesite broj ugovora"
+            />
+          </Form.Item>
+          <Form.Item
+            label="Datum akontacije"
+            name="datum_kontacije"
             rules={[
               {
                 type: "object" as const,
                 required: true,
-                message: "Molimo odaberite datum.",
+                message: "Molimo odaberite datum akontacije.",
               },
             ]}
           >
@@ -86,29 +123,26 @@ export default function ModalAddKupoprodajniUgovor({
               style={{ width: "100%" }}
               disabledDate={(day) => day.isBefore(new Date())}
               format={"DD.MM.YYYY"}
-              disabled={form.getFieldValue("status") === 3}
-              placeholder="Unesite rok isporuke"
+              placeholder="Odaberite datum akontacije"
             />
           </Form.Item>
           <Form.Item
-            label="Status"
-            name="status"
-            rules={[{ required: true, message: "Status mora biti upisan." }]}
+            label="Rok ispruke"
+            name="rok_isporuke"
+            rules={[
+              {
+                type: "object" as const,
+                required: true,
+                message: "Molimo odaberite rok isporuke.",
+              },
+            ]}
           >
-            <Select
+            <DatePicker
               style={{ width: "100%" }}
-              allowClear
-              options={constructStatusOptions(selectedRow.status)}
-              placeholder="Izaberite status"
+              disabledDate={(day) => day.isBefore(new Date())}
+              format={"DD.MM.YYYY"}
+              placeholder="Odaberite rok isporuke"
             />
-          </Form.Item>
-          <Form.Item style={{ textAlign: "right" }}>
-            <Space>
-              <Button onClick={handleCancel}>Odustani</Button>
-              <Button type="primary" htmlType="submit">
-                Potvrdi
-              </Button>
-            </Space>
           </Form.Item>
         </Form>
       </Spin>

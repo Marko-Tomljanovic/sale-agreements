@@ -8,23 +8,25 @@ import { SelectedRow } from "../utils/types";
 import FiltersListaKP from "./filters/FiltersListaKP";
 import { useNavigate } from "react-router-dom";
 import { INIT_STATE_SELECTED_ROW } from "../utils/initialStates";
-import { axiosInstance } from "../services/axiosConfig";
 import dayjs from "dayjs";
+import { fetchKP } from "../api/SaleAgreementsApi";
+import { useGlobal } from "../context/GlobalProvider";
 
 export default function HomePage() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<SelectedRow>(
     INIT_STATE_SELECTED_ROW
   );
-  const [dataSource, setDataSource] = useState<SelectedRow[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const navigate = useNavigate();
   const { constructStatusTag } = useConstructStatusTag();
 
+  const { dataSource, setDataSource } = useGlobal();
+
   const fetchData = async () => {
     try {
       setIsLoading(true);
-      const { data } = await axiosInstance.get("/kupoprodajni-ugovori");
+      const data = await fetchKP();
       setDataSource(data);
     } catch (error) {
       console.log("error:", error);
@@ -60,7 +62,7 @@ export default function HomePage() {
       title: "Status",
       dataIndex: "status",
       key: "status",
-      render: (text: any) => {
+      render: (text: number) => {
         return (
           <span style={{ whiteSpace: "nowrap" }}>
             {constructStatusTag(text)}
@@ -97,7 +99,7 @@ export default function HomePage() {
   ];
   return (
     <>
-      <FiltersListaKP />
+      <FiltersListaKP setData={setDataSource} setIsLoading={setIsLoading} />
       <Spin spinning={isLoading}>
         <Table
           dataSource={dataSource || []}
