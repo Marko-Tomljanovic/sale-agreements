@@ -16,7 +16,6 @@ async function filterKP(query) {
     if (kupac && kupac.trim() !== "") {
       queryObj.kupac = { $regex: kupac, $options: "i" };
     }
-    console.log("queryObj:", queryObj);
 
     const kupoprodajniUgovori = await KupoprodajniUgovor.find(queryObj);
     return {
